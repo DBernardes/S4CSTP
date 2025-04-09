@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "s4cstp"
+version = "0.1.0"
+description = "SPARC4 Control System Test Package"
+authors = ["DBernardes <denis.bernardes099@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+
+[tool.poetry.group.dev.dependencies]
+astropy = "^7.0.1"
+scipy = "^1.15.2"
+numpy = "^2.2.4"
+pandas = "^2.2.3"
+ipykernel = "^6.29.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
