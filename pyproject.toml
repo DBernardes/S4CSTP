@@ -5,6 +5,7 @@ description = "SPARC4 Control System Test Package"
 authors = ["DBernardes <denis.bernardes099@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+package-mode = false # poetry in the non-package mode, just dependency management
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -16,6 +17,11 @@ scipy = "^1.15.2"
 numpy = "^2.2.4"
 pandas = "^2.2.3"
 ipykernel = "^6.29.5"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.5"
+pytest-coverage = "^0.0"
 
 [build-system]
 requires = ["poetry-core"]
