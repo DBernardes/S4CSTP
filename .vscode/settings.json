@@ -1,5 +1,9 @@
 {
     "workbench.colorCustomizations": {
         "titleBar.activeBackground": "#117516"
-    }
+    },
+    "python.defaultInterpreterPath": "C:\\Users\\Denis\\AppData\\Local\\pypoetry\\Cache\\virtualenvs\\s4cstp-LIwmcb2Y-py3.12\\Scripts\\python.exe",
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false
+
 }

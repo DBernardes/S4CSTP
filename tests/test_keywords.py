@@ -9,9 +9,10 @@ Created on thursday, May 22 2025.
 """
 
 import unittest
-import pytest
 from os.path import join
+
 import astropy.io.fits as fits
+import pytest
 
 
 class Test_Keywords(unittest.TestCase):
