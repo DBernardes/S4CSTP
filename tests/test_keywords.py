@@ -20,6 +20,7 @@ import pytest
 class Test_Keywords(unittest.TestCase):
 
     image_folder = join("C:\\", "images", "today")
+    # image_folder = join("C:\\", "Users", "Denis", "Desktop", "dados", "20240605")
     csv_folder = join("csv")
 
     @classmethod
@@ -28,8 +29,10 @@ class Test_Keywords(unittest.TestCase):
         cls.ccd_gains = pd.read_csv(join(cls.csv_folder, "preamp_gains.csv"))
 
     def test_read_noise(self):
-        folder = join(self.image_folder, "RN_AND_GAIN")
+        folder = join(self.image_folder)
         for file in listdir(folder):
+            if file[-4:] != "fits":
+                continue
             hdr = fits.getheader(join(folder, file))
             em_mode = hdr["EMMODE"]
             if em_mode != "Conventional":
@@ -47,8 +50,10 @@ class Test_Keywords(unittest.TestCase):
             assert line[serial_number].values[0] == read_noise
 
     def test_ccd_gain(self):
-        folder = join(self.image_folder, "RN_AND_GAIN")
+        folder = join(self.image_folder)
         for file in listdir(folder):
+            if file[-4:] != "fits":
+                continue
             hdr = fits.getheader(join(folder, file))
             em_mode = hdr["EMMODE"]
             if em_mode != "Conventional":
