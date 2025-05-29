@@ -29,7 +29,7 @@ class Test_Keywords(unittest.TestCase):
         cls.ccd_gains = pd.read_csv(join(cls.csv_folder, "preamp_gains.csv"))
 
     def test_read_noise(self):
-        folder = join(self.image_folder)
+        folder = join(self.image_folder, "RN_AND_GAIN")
         for file in listdir(folder):
             if file[-4:] != "fits":
                 continue
@@ -50,7 +50,7 @@ class Test_Keywords(unittest.TestCase):
             assert line[serial_number].values[0] == read_noise
 
     def test_ccd_gain(self):
-        folder = join(self.image_folder)
+        folder = join(self.image_folder, "RN_AND_GAIN")
         for file in listdir(folder):
             if file[-4:] != "fits":
                 continue
