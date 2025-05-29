@@ -25,8 +25,9 @@ class Test_Keywords(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.read_noises = pd.read_csv(join(cls.csv_folder, "read_noises.csv"))
+        cls.ccd_gains = pd.read_csv(join(cls.csv_folder, "preamp_gains.csv"))
 
-    def test_true(self):
+    def test_read_noise(self):
         folder = join(self.image_folder, "RN_AND_GAIN")
         for file in listdir(folder):
             hdr = fits.getheader(join(folder, file))
@@ -44,3 +45,22 @@ class Test_Keywords(unittest.TestCase):
             )
             line = self.read_noises[filter]
             assert line[serial_number].values[0] == read_noise
+
+    def test_ccd_gain(self):
+        folder = join(self.image_folder, "RN_AND_GAIN")
+        for file in listdir(folder):
+            hdr = fits.getheader(join(folder, file))
+            em_mode = hdr["EMMODE"]
+            if em_mode != "Conventional":
+                em_mode = "EM"
+            readout = hdr["READRATE"]
+            preamp = float(hdr["PREAMP"][-1])
+            serial_number = f'{hdr["CCDSERN"]}'
+            gain = hdr["GAIN"]
+            filter = (
+                (self.ccd_gains["EM Mode"] == em_mode)
+                & (self.ccd_gains["Readout Rate"] == readout)
+                & (self.ccd_gains["Preamp"] == preamp)
+            )
+            line = self.ccd_gains[filter]
+            assert line[serial_number].values[0] == gain
