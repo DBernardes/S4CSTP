@@ -27,6 +27,12 @@ class Test_Keywords(unittest.TestCase):
     def setUpClass(cls):
         cls.read_noises = pd.read_csv(join(cls.csv_folder, "read_noises.csv"))
         cls.ccd_gains = pd.read_csv(join(cls.csv_folder, "preamp_gains.csv"))
+        cls.header_content = pd.read_csv(
+            join(cls.csv_folder, "header_content.csv"), delimiter=";"
+        )
+        file_name = listdir(cls.image_folder)[0]
+        cls.img, cls.hdr = fits.getdata(join(cls.image_folder, file_name), header=True)
+        del cls.hdr["COMMENT"]
 
     def test_read_noise(self):
         folder = join(self.image_folder, "RN_AND_GAIN")
@@ -69,3 +75,8 @@ class Test_Keywords(unittest.TestCase):
             )
             line = self.ccd_gains[filter]
             assert line[serial_number].values[0] == gain
+
+    def test_missing_keywords(self):
+        hdr_keywords = list(self.hdr.keys())
+        csv_keywords = self.header_content["Keyword"].values
+        assert set(hdr_keywords) == set(csv_keywords)
