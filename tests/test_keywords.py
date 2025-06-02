@@ -20,7 +20,6 @@ import pytest
 class Test_Keywords(unittest.TestCase):
 
     image_folder = join("C:\\", "images", "today")
-    # image_folder = join("C:\\", "Users", "Denis", "Desktop", "dados", "20240605")
     csv_folder = join("csv")
 
     @classmethod

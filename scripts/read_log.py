@@ -14,7 +14,6 @@ Usage:
 
 """
 
-# Import necessary libraries
 
 import configparser
 import smtplib

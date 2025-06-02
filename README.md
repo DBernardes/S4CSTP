@@ -1,2 +1,2 @@
-# S4CSTP
- SPARC4 Control System Test Package
+# SPARC4 Control System Test Package (S4CSTP)
+ 
