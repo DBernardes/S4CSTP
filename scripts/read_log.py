@@ -54,7 +54,7 @@ You are receiving the errors and warnings found for the SPARC4 channel {channel}
 email_string = base_string
 for line in lines:
     if "ERROR" in line or "WARNING" in line:
-        email_strintg += line + "\n"
+        email_string += line + "\n"
 # ------------ Send email --------------------
 smtp_server = "smtp.gmail.com"
 smtp_port = 465
@@ -66,7 +66,7 @@ msg = MIMEMultipart()
 msg["From"] = usuario
 msg["To"] = receiver
 msg["Subject"] = f"SPARC4: errors and warnings occured in {yesterday}."
-msg.attach(MIMEText(email_strintg, "plain"))
+msg.attach(MIMEText(email_string, "plain"))
 
 if email_string != base_string:
     try:
