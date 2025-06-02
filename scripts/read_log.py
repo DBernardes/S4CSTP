@@ -32,8 +32,8 @@ config = configparser.ConfigParser()
 cfg_file = join(base_folder, "acs_config.cfg")
 try:
     acs_cfg = config.read(cfg_file)
-except FileNotFoundError:
-    raise Exception(f"The {cfg_file} file was not found.")
+except FileNotFoundError as e:
+    raise FileNotFoundError(f"The {cfg_file} file was not found.") from e
 channel = config.get("channel configuration", "channel")
 # --------- Read the log file ---------------
 yesterday = datetime.now() - timedelta(days=1)
@@ -42,38 +42,36 @@ log_file = join(base_folder, f"{yesterday}", f"acs_ch{channel}_events.log")
 try:
     with open(log_file) as file:
         lines = file.read().splitlines()
-except FileNotFoundError:
-    raise Exception(f"The acs_ch{channel}_events.log was not found.")
+except FileNotFoundError as e:
+    raise FileNotFoundError(f"The acs_ch{channel}_events.log was not found.") from e
 
-base_string = f"""
+BASE_STRING = f"""
 Hello,
 
 You are receiving the errors and warnings found for the SPARC4 channel {channel}, occurred in {yesterday}.
 
 """
-email_string = base_string
+EMAIL_STRING = BASE_STRING
 for line in lines:
     if "ERROR" in line or "WARNING" in line:
-        email_string += line + "\n"
+        EMAIL_STRING += line + "\n"
 # ------------ Send email --------------------
-smtp_server = "smtp.gmail.com"
-smtp_port = 465
-usuario = "denis.bernardes099@gmail.com"
-receiver = "denis.bernardes099@gmail.com"
-senha = "ywezhvdldcweqztv"
+USER = "denis.bernardes099@gmail.com"
+RECEIVER = "denis.bernardes099@gmail.com"
+PASSWORD = "ywezhvdldcweqztv"
 
 msg = MIMEMultipart()
-msg["From"] = usuario
-msg["To"] = receiver
+msg["From"] = USER
+msg["To"] = RECEIVER
 msg["Subject"] = f"SPARC4: errors and warnings occured in {yesterday}."
-msg.attach(MIMEText(email_string, "plain"))
+msg.attach(MIMEText(EMAIL_STRING, "plain"))
 
-if email_string != base_string:
+if EMAIL_STRING != BASE_STRING:
     try:
         server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
-        server.login(usuario, senha)
+        server.login(USER, PASSWORD)
         texto = msg.as_string()
-        server.sendmail(usuario, receiver, texto)
+        server.sendmail(USER, RECEIVER, texto)
         server.quit()
     except Exception as e:
-        raise Exception(f"Error when sending the email: {e}")
+        raise Exception(f"Error when sending the email: {e}") from e
