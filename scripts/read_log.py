@@ -19,6 +19,7 @@ import configparser
 import logging
 import os
 import smtplib
+import sys
 from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -34,6 +35,7 @@ logging.basicConfig(
     filemode="w",
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
+logging.info(f"The used python interpreter is: {sys.executable}")
 # --------- Read CFG file ---------------
 config = configparser.ConfigParser()
 cfg_file = join(base_folder, "acs_config.cfg")
@@ -43,7 +45,7 @@ try:
 except FileNotFoundError as e:
     logging.info(f"The {cfg_file} file was not found." + e)
 channel = config.get("channel configuration", "channel")
-logging.info(f"This machine correspons to ACS{channel}.")
+logging.info(f"This machine corresponds to ACS{channel}.")
 # --------- Read the log file ---------------
 yesterday = datetime.now() - timedelta(days=1)
 yesterday = yesterday.strftime("%Y%m%d")
