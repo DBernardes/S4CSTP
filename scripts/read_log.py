@@ -25,27 +25,29 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from getpass import getuser
 from os.path import join
+from pathlib import Path
 
-user = getuser()
 cwd = os.path.dirname(os.path.abspath(__file__))
-base_folder = join("C:\\", "Users", f"{user}", "SPARC4", "ACS")
+base_folder = join(cwd, *3 * [".."], "SPARC4", "ACS")
 logging.basicConfig(
     level=logging.INFO,
     filename=join(cwd, "log.log"),
     filemode="w",
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
-logging.info(f"The used python interpreter is: {sys.executable}")
+logging.info(f"The python version used in this run is {sys.executable}")
 # --------- Read CFG file ---------------
 config = configparser.ConfigParser()
 cfg_file = join(base_folder, "acs_config.cfg")
 try:
     acs_cfg = config.read(cfg_file)
-    logging.info("The S4ACS cgf file has been read.")
+    logging.info(f"The file {cfg_file} has been read.")
 except FileNotFoundError as e:
     logging.info(f"The {cfg_file} file was not found." + e)
+
 channel = config.get("channel configuration", "channel")
-logging.info(f"This machine corresponds to ACS{channel}.")
+logging.info(f"This machine correspons to ACS{channel}.")
+
 # --------- Read the log file ---------------
 yesterday = datetime.now() - timedelta(days=1)
 yesterday = yesterday.strftime("%Y%m%d")
@@ -56,7 +58,7 @@ try:
         lines = file.read().splitlines()
     logging.info(f"The log file has been read.")
 except FileNotFoundError as e:
-    logging.info(f"The acs_ch{channel}_events.log was not found." + e)
+    logging.info(f"The file acs_ch{channel}_events.log was not found." + e)
 
 BASE_STRING = f"""
 Hello,
@@ -75,6 +77,7 @@ logging.info(f"There is (are) {i} line(s) to log.")
 # ------------ Send email --------------------
 USER = "denis.bernardes099@gmail.com"
 RECEIVER = "denis.bernardes099@gmail.com"
+# RECEIVER = "sparc4-comissionamento@googlegroups.com"
 PASSWORD = "ywezhvdldcweqztv"
 
 msg = MIMEMultipart()
