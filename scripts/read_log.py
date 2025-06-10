@@ -43,7 +43,7 @@ try:
     acs_cfg = config.read(cfg_file)
     logging.info(f"The file {cfg_file} has been read.")
 except FileNotFoundError as e:
-    logging.info(f"The {cfg_file} file was not found." + e)
+    logging.info(f"The {cfg_file} file was not found." + repr(e))
 
 channel = config.get("channel configuration", "channel")
 logging.info(f"This machine correspons to ACS{channel}.")
@@ -58,7 +58,7 @@ try:
         lines = file.read().splitlines()
     logging.info(f"The log file has been read.")
 except FileNotFoundError as e:
-    logging.info(f"The file acs_ch{channel}_events.log was not found." + e)
+    logging.info(f"The file acs_ch{channel}_events.log was not found." + repr(e))
 
 BASE_STRING = f"""
 Hello,
@@ -76,25 +76,32 @@ logging.info(f"There is (are) {i} line(s) to log.")
 
 # ------------ Send email --------------------
 USER = "denis.bernardes099@gmail.com"
-RECEIVER = "denis.bernardes099@gmail.com"
-# RECEIVER = "sparc4-comissionamento@googlegroups.com"
+RECEIVERS = ["denis.bernardes099@gmail.com"]
+# RECEIVERS = [
+#     "claudia.rodrigues@inpe.br",
+#     "overducci@lna.br",
+#     "frodrigues@lna.br",
+#     "denis.bernardes099@gmail.com",
+# ]
 PASSWORD = "ywezhvdldcweqztv"
 
 msg = MIMEMultipart()
 msg["From"] = USER
-msg["To"] = RECEIVER
 msg["Subject"] = f"SPARC4: errors and warnings occured in {yesterday}."
 msg.attach(MIMEText(EMAIL_STRING, "plain"))
+
 
 if EMAIL_STRING != BASE_STRING:
     try:
         server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
         server.login(USER, PASSWORD)
         texto = msg.as_string()
-        server.sendmail(USER, RECEIVER, texto)
+        for receiver in RECEIVERS:
+            msg["To"] = receiver
+            server.sendmail(USER, receiver, texto)
+            logging.info(f"The email has been sent to {receiver} succesfully.")
         server.quit()
-        logging.info(f"The email has been sent to {RECEIVER} succesfully.")
     except Exception as e:
-        logging.info(f"Error when sending the email: {e}")
+        logging.info(f"Error when sending the email: {repr(e)}")
 else:
     logging.info(f"There are no events to report.")
