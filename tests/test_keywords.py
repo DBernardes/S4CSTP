@@ -62,9 +62,9 @@ class Test_Keywords(unittest.TestCase):
         "DATE-OBS": r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}",
         "UTTIME": r"\d{2}:\d{2}:\d{2}\.\d{6}",
         "UTDATE": r"\d{4}-\d{2}-\d{2}",
-        "RA": r"-?\d{2}:\d{2}:\d{2}(\.\d+)?",
-        "DEC": r"-?\d{2}:\d{2}:\d{2}(\.\d+)?",
-        "TCSHA": r"-?\d{2}:\d{2}:\d{2}(\.\d+)?",
+        "RA": r"[\+-]?\d{2}:\d{2}:\d{2}(\.\d+)?",
+        "DEC": r"[\+-]?\d{2}:\d{2}:\d{2}(\.\d+)?",
+        "TCSHA": r"[\+-]?\d{2}:\d{2}:\d{2}(\.\d+)?",
         "TCSDATE": r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}",
         "ACSVRSN": r"v\d+\.\d+\.\d+",
         "GUIVRSN": r"v\d+\.\d+\.\d+",
@@ -92,7 +92,6 @@ class Test_Keywords(unittest.TestCase):
             if file[-4:] != "fits":
                 continue
             hdr = fits.getheader(join(folder, file))
-            del hdr["COMMENT"]
             hdrs_list.append(hdr)
         return hdrs_list
 
@@ -138,13 +137,15 @@ class Test_Keywords(unittest.TestCase):
 
     def test_missing_keywords(self):
         for hdr in self.hdrs_list:
+            del hdr["COMMENT"]
             hdr_keywords = list(hdr.keys())
             csv_keywords = self.header_content["Keyword"].values
             assert set(hdr_keywords) == set(csv_keywords)
             assert set(hdr_keywords) == set(csv_keywords)
 
-    def test_comments(self):
+    def test_kw_comments(self):
         for hdr in self.hdrs_list:
+            del hdr["COMMENT"]
             for keyword in hdr.keys():
                 hdr_comment = hdr.comments[keyword]
                 csv_comment = self.header_content[
@@ -201,3 +202,15 @@ class Test_Keywords(unittest.TestCase):
                 if kw not in self.to_fix_keywords:
                     assert re.match(self.regex_expressions[kw], hdr[kw])
         return
+
+    def test_WPPOS(self):
+        for hdr in self.hdrs_list:
+            if (hdr["INSTMODE"] == "POLAR") & (hdr["WPPOS"] == 0):
+                raise ValueError(f"The value WPPOS=0 was found the polarimetric mode.")
+        return
+
+    def test_comment_kw(self):
+        for hdr in self.hdrs_list:
+            if "COMMENT" in hdr.keys():
+                print(hdr["FILENAME"])
+                assert hdr["COMMENT"] != ""
