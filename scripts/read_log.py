@@ -40,14 +40,17 @@ logging.info(f"The python version used in this run is {sys.executable}")
 config = configparser.ConfigParser()
 cfg_file = join(base_folder, "acs_config.cfg")
 try:
-    acs_cfg = config.read(cfg_file)
+    config.read(cfg_file)
     logging.info(f"The file {cfg_file} has been read.")
 except FileNotFoundError as e:
     logging.info(f"The {cfg_file} file was not found." + repr(e))
 
 channel = config.get("channel configuration", "channel")
 logging.info(f"This machine correspons to ACS{channel}.")
-log_folder = join("C:\\", "sparc4", "log", f"s4acs{channel}")
+log_folder = join(
+    Path(config.get("channel configuration", "log file path").strip(r"\"")),
+    f"s4acs{channel}",
+)
 logging.info(f"The path in which the log files are saved is {log_folder}.")
 
 # --------- Read the log file ---------------
