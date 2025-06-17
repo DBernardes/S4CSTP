@@ -49,17 +49,26 @@ class Test_Keywords(unittest.TestCase):
         "CALWANG",
         "ANALANG",
     ]  # ! remover isto
-    to_fix_keywords = ["CALW", "OBSTYPE"]  #! remover isto
+    to_fix_keywords = [
+        "CALW",
+        "OBSTYPE",
+        "TCSHA",
+        "ICSVRSN",
+        "RA",
+        "DEC",
+    ]  #! remover isto
     regex_expressions = {
         "FILENAME": r"\d{8}_s4c[1-4]_\d{6}(_[a-z0-9]+)?\.fits",
         "DATE-OBS": r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}",
         "UTTIME": r"\d{2}:\d{2}:\d{2}\.\d{6}",
         "UTDATE": r"\d{4}-\d{2}-\d{2}",
-        "RA": r"\d{2}:\d{2}:\d{2}",
-        "DEC": r"\d{2}:\d{2}:\d{2}",
-        "TCSHA": r"\d{2}:\d{2}:\d{2}",
+        "RA": r"-?\d{2}:\d{2}:\d{2}(\.\d+)?",
+        "DEC": r"-?\d{2}:\d{2}:\d{2}(\.\d+)?",
+        "TCSHA": r"-?\d{2}:\d{2}:\d{2}(\.\d+)?",
         "TCSDATE": r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}",
-        "ACSVRSN": r"v(\d+\.){3}",
+        "ACSVRSN": r"v\d+\.\d+\.\d+",
+        "GUIVRSN": r"v\d+\.\d+\.\d+",
+        "ICSVRSN": r"v\d+\.\d+\.\d+",
     }
 
     @classmethod
@@ -187,7 +196,8 @@ class Test_Keywords(unittest.TestCase):
                     assert hdr[kw] in allowed_vals
 
     def test_kws_regex(self):
-        # for hdr in self.hdrs_list:
-        #     for kw in self.regex_expressions:
-
+        for hdr in self.hdrs_list:
+            for kw in self.regex_expressions:
+                if kw not in self.to_fix_keywords:
+                    assert re.match(self.regex_expressions[kw], hdr[kw])
         return
