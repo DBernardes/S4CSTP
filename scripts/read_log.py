@@ -92,7 +92,7 @@ PASSWORD = "ywezhvdldcweqztv"
 
 msg = MIMEMultipart()
 msg["From"] = USER
-msg["Subject"] = f"SPARC4: errors and warnings occured in {yesterday}."
+msg["Subject"] = f"{yesterday}: errors and warnings found for channel {channel}."
 msg.attach(MIMEText(EMAIL_STRING, "plain"))
 
 
