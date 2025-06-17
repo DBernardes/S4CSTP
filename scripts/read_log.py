@@ -47,18 +47,20 @@ except FileNotFoundError as e:
 
 channel = config.get("channel configuration", "channel")
 logging.info(f"This machine correspons to ACS{channel}.")
+log_folder = join("C:\\", "sparc4", "log", f"s4acs{channel}")
+logging.info(f"The path in which the log files are saved is {log_folder}.")
 
 # --------- Read the log file ---------------
 yesterday = datetime.now() - timedelta(days=1)
 yesterday = yesterday.strftime("%Y%m%d")
 logging.info(f"The observation date was {yesterday}.")
-log_file = join(base_folder, f"{yesterday}", f"acs_ch{channel}_events.log")
+log_file = join(log_folder, f"{yesterday}_events.log")
 try:
     with open(log_file) as file:
         lines = file.read().splitlines()
     logging.info(f"The log file has been read.")
 except FileNotFoundError as e:
-    logging.info(f"The file acs_ch{channel}_events.log was not found." + repr(e))
+    logging.info(f"The file {yesterday}_events.log was not found." + repr(e))
 
 BASE_STRING = f"""
 Hello,
