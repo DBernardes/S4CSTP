@@ -81,18 +81,20 @@ logging.info(f"There is (are) {i} line(s) to log.")
 
 # ------------ Send email --------------------
 USER = "denis.bernardes099@gmail.com"
-RECEIVERS = ["denis.bernardes099@gmail.com"]
-# RECEIVERS = [
-#     "claudia.rodrigues@inpe.br",
-#     "overducci@lna.br",
-#     "frodrigues@lna.br",
-#     "denis.bernardes099@gmail.com",
-# ]
+# RECEIVERS = ["denis.bernardes099@gmail.com"]
+RECEIVERS = [
+    "claudia.rodrigues@inpe.br",
+    "overducci@lna.br",
+    "frodrigues@lna.br",
+    "denis.bernardes099@gmail.com",
+]
 PASSWORD = "ywezhvdldcweqztv"
 
 msg = MIMEMultipart()
 msg["From"] = USER
-msg["Subject"] = f"{yesterday}: errors and warnings found for channel {channel}."
+msg["Subject"] = (
+    f"{yesterday}: errors and warnings found for the SPARC4 channel {channel}."
+)
 msg.attach(MIMEText(EMAIL_STRING, "plain"))
 
 
