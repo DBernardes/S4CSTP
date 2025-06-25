@@ -137,7 +137,8 @@ class Test_Keywords(unittest.TestCase):
 
     def test_missing_keywords(self):
         for hdr in self.hdrs_list:
-            del hdr["COMMENT"]
+            if "COMMENT" in hdr.keys():
+                del hdr["COMMENT"]
             hdr_keywords = list(hdr.keys())
             csv_keywords = self.header_content["Keyword"].values
             assert set(hdr_keywords) == set(csv_keywords)
@@ -145,7 +146,8 @@ class Test_Keywords(unittest.TestCase):
 
     def test_kw_comments(self):
         for hdr in self.hdrs_list:
-            del hdr["COMMENT"]
+            if "COMMENT" in hdr.keys():
+                del hdr["COMMENT"]
             for keyword in hdr.keys():
                 hdr_comment = hdr.comments[keyword]
                 csv_comment = self.header_content[
@@ -212,5 +214,4 @@ class Test_Keywords(unittest.TestCase):
     def test_comment_kw(self):
         for hdr in self.hdrs_list:
             if "COMMENT" in hdr.keys():
-                print(hdr["FILENAME"])
                 assert hdr["COMMENT"] != ""
