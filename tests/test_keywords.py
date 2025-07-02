@@ -42,21 +42,7 @@ class Test_Keywords(unittest.TestCase):
         "WPSEL",
         "CALW",
     ]
-    wrong_keywords = [
-        "PSETMODE",
-        "WPSELPO",
-        "WPANG",
-        "CALWANG",
-        "ANALANG",
-    ]  # ! remover isto
-    to_fix_keywords = [
-        "CALW",
-        "OBSTYPE",
-        "TCSHA",
-        "ICSVRSN",
-        "RA",
-        "DEC",
-    ]  #! remover isto
+    to_fix_keywords = []
     regex_expressions = {
         "FILENAME": r"\d{8}_s4c[1-4]_\d{6}(_[a-z0-9]+)?\.fits",
         "DATE-OBS": r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}",
@@ -101,40 +87,6 @@ class Test_Keywords(unittest.TestCase):
         header_content = pd.read_csv(join("csv", "header_content.csv"), delimiter=";")
         return read_noises, ccd_gains, header_content
 
-    def test_read_noise(self):
-        for hdr in self.hdrs_list:
-            em_mode = hdr["EMMODE"]
-            if em_mode != "Conventional":
-                em_mode = "EM"
-            readout = hdr["READRATE"]
-            preamp = float(hdr["PREAMP"][-1])
-            serial_number = f'{hdr["CCDSERN"]}'
-            read_noise = hdr["RDNOISE"]
-            filter = (
-                (self.read_noises["EM Mode"] == em_mode)
-                & (self.read_noises["Readout Rate"] == readout)
-                & (self.read_noises["Preamp"] == preamp)
-            )
-            line = self.read_noises[filter]
-            assert line[serial_number].values[0] == read_noise
-
-    def test_ccd_gain(self):
-        for hdr in self.hdrs_list:
-            em_mode = hdr["EMMODE"]
-            if em_mode != "Conventional":
-                em_mode = "EM"
-            readout = hdr["READRATE"]
-            preamp = float(hdr["PREAMP"][-1])
-            serial_number = f'{hdr["CCDSERN"]}'
-            gain = hdr["GAIN"]
-            filter = (
-                (self.ccd_gains["EM Mode"] == em_mode)
-                & (self.ccd_gains["Readout Rate"] == readout)
-                & (self.ccd_gains["Preamp"] == preamp)
-            )
-            line = self.ccd_gains[filter]
-            assert line[serial_number].values[0] == gain
-
     def test_missing_keywords(self):
         for hdr in self.hdrs_list:
             if "COMMENT" in hdr.keys():
@@ -158,8 +110,6 @@ class Test_Keywords(unittest.TestCase):
     def test_keywords_types(self):
         for hdr in self.hdrs_list:
             for _, row in self.header_content.iterrows():
-                if row["Keyword"] in self.wrong_keywords:
-                    continue
                 keyword_val = hdr[row["Keyword"]]
                 _type = self.var_types[row["Type"]]
                 assert isinstance(keyword_val, _type)
@@ -172,10 +122,7 @@ class Test_Keywords(unittest.TestCase):
         for hdr in self.hdrs_list:
             for _, row in filtered_hdr_content.iterrows():
                 keyword = row["Keyword"]
-                if (
-                    keyword not in self.kws_specific_values
-                    and keyword not in self.wrong_keywords
-                ):
+                if keyword not in self.kws_specific_values:
                     _min, _max = row["Allowed values"].split(",")
                     _min = float(_min)
                     if _max == "inf":
@@ -215,3 +162,65 @@ class Test_Keywords(unittest.TestCase):
         for hdr in self.hdrs_list:
             if "COMMENT" in hdr.keys():
                 assert hdr["COMMENT"] != ""
+
+    # -------------------- tests to verify the keywords content ----------------------------
+
+    def test_observatory_coords(self):
+        for hdr in self.hdrs_list:
+            assert hdr["OBSLONG"] == -45.5825
+            assert hdr["OBSLAT"] == -22.534
+            assert hdr["OBSALT"] == 1864.0
+
+    def test_ccd_gain(self):
+        for hdr in self.hdrs_list:
+            em_mode = hdr["EMMODE"]
+            if em_mode != "Conventional":
+                em_mode = "EM"
+            readout = hdr["READRATE"]
+            preamp = float(hdr["PREAMP"][-1])
+            serial_number = f'{hdr["CCDSERN"]}'
+            gain = hdr["GAIN"]
+            filter = (
+                (self.ccd_gains["EM Mode"] == em_mode)
+                & (self.ccd_gains["Readout Rate"] == readout)
+                & (self.ccd_gains["Preamp"] == preamp)
+            )
+            line = self.ccd_gains[filter]
+            assert line[serial_number].values[0] == gain
+
+    def test_read_noise(self):
+        for hdr in self.hdrs_list:
+            em_mode = hdr["EMMODE"]
+            if em_mode != "Conventional":
+                em_mode = "EM"
+            readout = hdr["READRATE"]
+            preamp = float(hdr["PREAMP"][-1])
+            serial_number = f'{hdr["CCDSERN"]}'
+            read_noise = hdr["RDNOISE"]
+            filter = (
+                (self.read_noises["EM Mode"] == em_mode)
+                & (self.read_noises["Readout Rate"] == readout)
+                & (self.read_noises["Preamp"] == preamp)
+            )
+            line = self.read_noises[filter]
+            assert line[serial_number].values[0] == read_noise
+
+    def test_equinox(self):
+        for hdr in self.hdrs_list:
+            assert hdr["EQUINOX"] == 2000.0
+
+    def test_BSCALE(self):
+        for hdr in self.hdrs_list:
+            assert hdr["BSCALE"] == 1
+
+    def test_BZERO(self):
+        for hdr in self.hdrs_list:
+            assert hdr["BZERO"] == 32768
+
+    def test_BITPIX(self):
+        for hdr in self.hdrs_list:
+            assert hdr["BITPIX"] == 16
+
+    def test_NAXIS(self):
+        for hdr in self.hdrs_list:
+            assert hdr["NAXIS"] == 2

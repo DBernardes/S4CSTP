@@ -2,7 +2,7 @@ Keyword;Expected name;Type;Allowed values;Comment
 SIMPLE;;boolean;true,false;conforms to FITS standard
 BSCALE;;integer;1,inf;Linear factor in scaling equation
 BZERO;;integer;1,inf;Zero point in scaling equation
-BITPIX;;integer;-64,-32,8,16,32;array data type
+BITPIX;;integer;16;array data type
 NAXIS;;integer;2,2;number of array dimensions
 NAXIS1;;integer;1,1024;Number of columns
 NAXIS2;;integer;1,1024;Number of rows
@@ -89,4 +89,4 @@ CALW;;string;POLARIZER,DEPOLARIZER,CLEAR,SPARE,CLOSED;Selected element in calibr
 CALWANG;;float;0,360;Calibration wheel position angle (deg)
 ASEL;;boolean;true,false;Savart prism analyzer selected
 ANALANG;;float;0,360;Analyzer position angle (deg)
-ACQERROR;;boolean;true,false;Error occurred during the acquisition - see comments
+ACQERROR;;boolean;true,false;Error occurred during the acquisition - see com
