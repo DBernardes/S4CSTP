@@ -11,9 +11,10 @@ Created on thursday, May 22 2025.
 import configparser
 import re
 import unittest
+from datetime import datetime, timedelta
 from getpass import getuser
 from os import listdir
-from os.path import join
+from os.path import isdir, join
 from pathlib import Path
 
 import astropy.io.fits as fits
@@ -59,7 +60,8 @@ class Test_Keywords(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.image_folder = cls._read_config_file()
+        cfg = cls._read_config_file()
+        cls.image_folder = cls._get_image_folder(cfg)
         cls.hdrs_list = cls._get_headers(cls.image_folder)
         cls.read_noises, cls.ccd_gains, cls.header_content = cls._read_csvs()
 
@@ -68,8 +70,18 @@ class Test_Keywords(unittest.TestCase):
         cfg_file = join(sparc4_folder, "acs_config.cfg")
         cfg = configparser.ConfigParser()
         cfg.read(cfg_file)
-        image_folder = cfg.get("channel configuration", "image path").strip(r"\"")
-        return Path(image_folder)
+        return cfg
+
+    def _get_image_folder(cfg):
+        today = Path(cfg.get("channel configuration", "image path").strip(r"\""))
+        today_list = [file for file in listdir(today) if ".fits" in file]
+        if today_list != []:
+            return today
+        yesterday = datetime.now() - timedelta(days=1)
+        yesterday = join(today, "..", yesterday.strftime("%Y%m%d"))
+        if not isdir(yesterday):
+            raise FileNotFoundError(f"The folder {yesterday} does not exist.")
+        return yesterday
 
     def _get_headers(image_folder):
         hdrs_list = []
@@ -155,7 +167,10 @@ class Test_Keywords(unittest.TestCase):
     def test_WPPOS(self):
         for hdr in self.hdrs_list:
             if (hdr["INSTMODE"] == "POLAR") & (hdr["WPPOS"] == 0):
-                raise ValueError(f"The value WPPOS=0 was found the polarimetric mode.")
+                raise ValueError(
+                    f"The value WPPOS=0 was found the polarimetric mode.",
+                    hdr["FILENAME"],
+                )
         return
 
     def test_comment_kw(self):
