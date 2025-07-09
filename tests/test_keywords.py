@@ -99,6 +99,8 @@ class Test_Keywords(unittest.TestCase):
         header_content = pd.read_csv(join("csv", "header_content.csv"), delimiter=";")
         return read_noises, ccd_gains, header_content
 
+    # -------------------------------------------------------------------------------------
+
     def test_missing_keywords(self):
         for hdr in self.hdrs_list:
             if "COMMENT" in hdr.keys():
@@ -239,3 +241,5 @@ class Test_Keywords(unittest.TestCase):
     def test_NAXIS(self):
         for hdr in self.hdrs_list:
             assert hdr["NAXIS"] == 2
+
+    # ------------------------------- test the overhead between images --------------------
