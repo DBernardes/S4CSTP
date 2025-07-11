@@ -86,7 +86,6 @@ RECEIVERS = [
     "claudia.rodrigues@inpe.br",
     "overducci@lna.br",
     "frodrigues@lna.br",
-    "denis.bernardes099@gmail.com",
 ]
 PASSWORD = "ywezhvdldcweqztv"
 
