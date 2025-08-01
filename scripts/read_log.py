@@ -81,12 +81,12 @@ logging.info(f"There is (are) {i} line(s) to log.")
 
 # ------------ Send email --------------------
 USER = "denis.bernardes099@gmail.com"
-# RECEIVERS = ["denis.bernardes099@gmail.com"]
-RECEIVERS = [
-    "claudia.rodrigues@inpe.br",
-    "overducci@lna.br",
-    "frodrigues@lna.br",
-]
+RECEIVERS = ["denis.bernardes099@gmail.com"]
+# RECEIVERS = [
+#     "claudia.rodrigues@inpe.br",
+#     "overducci@lna.br",
+#     "frodrigues@lna.br",
+# ]
 PASSWORD = "ywezhvdldcweqztv"
 
 msg = MIMEMultipart()
