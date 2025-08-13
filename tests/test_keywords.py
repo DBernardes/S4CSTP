@@ -9,6 +9,8 @@ Created on thursday, May 22 2025.
 """
 
 import configparser
+import inspect
+import logging
 import re
 import unittest
 from datetime import datetime, timedelta
@@ -43,7 +45,6 @@ class Test_Keywords(unittest.TestCase):
         "WPSEL",
         "CALW",
     ]
-    to_fix_keywords = []
     regex_expressions = {
         "FILENAME": r"\d{8}_s4c[1-4]_\d{6}(_[a-z0-9]+)?\.fits",
         "DATE-OBS": r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}",
@@ -99,6 +100,50 @@ class Test_Keywords(unittest.TestCase):
         header_content = pd.read_csv(join("csv", "header_content.csv"), delimiter=";")
         return read_noises, ccd_gains, header_content
 
+    # ----------------------------------------------------------------------------------------
+    @staticmethod
+    def compare_numbers(expected, received, filename, func_name):
+        if not np.allclose(expected, received):
+            logging.error(
+                f"Test: {func_name}, filename: {filename}, expected val: {expected}, received val: {received}"
+            )
+
+    @staticmethod
+    def compare_lists(expected, received, filename, func_name):
+        expected, received = set(expected), set(received)
+        if expected != received:
+            logging.error(
+                f"Test: {func_name}, filename: {filename}, diff: {expected ^ received}"
+            )
+
+    @staticmethod
+    def verify_type(kw, value, _type, filename, func_name):
+        if not isinstance(value, _type):
+            logging.error(
+                f"Test: {func_name}, filename: {filename}, keyword {kw} is not an instance of {_type}: an {type(value)} was found."
+            )
+
+    @staticmethod
+    def kw_in_interval(_min, _max, value, kw, filename, func_name):
+        if not _min <= value <= _max:
+            logging.error(
+                f"Test: {func_name}, filename: {filename}, keyword {kw} is not in the interval [{_min}, {_max}]: {value}"
+            )
+
+    @staticmethod
+    def val_in_list(value, _list, kw, filename, func_name):
+        if not value in _list:
+            logging.error(
+                f"Test: {func_name}, filename: {filename}, keyword {kw} is not in {_list}: {value}"
+            )
+
+    @staticmethod
+    def verifiy_regex(value, expression, kw, filename, func_name):
+        if not re.match(expression, value):
+            logging.error(
+                f"Test: {func_name}, filename: {filename}, an unexpected value was found for the keyword {kw}: {value}"
+            )
+
     # -------------------------------------------------------------------------------------
 
     def test_missing_keywords(self):
@@ -106,27 +151,27 @@ class Test_Keywords(unittest.TestCase):
             if "COMMENT" in hdr.keys():
                 del hdr["COMMENT"]
             hdr_keywords = list(hdr.keys())
-            csv_keywords = self.header_content["Keyword"].values
-            assert set(hdr_keywords) == set(csv_keywords)
-            assert set(hdr_keywords) == set(csv_keywords)
+            csv_keywords = list(self.header_content["Keyword"].values)
+            func_name = inspect.currentframe().f_code.co_name
+            self.compare_lists(csv_keywords, hdr_keywords, hdr["FILENAME"], func_name)
 
     def test_kw_comments(self):
         for hdr in self.hdrs_list:
             if "COMMENT" in hdr.keys():
                 del hdr["COMMENT"]
-            for keyword in hdr.keys():
-                hdr_comment = hdr.comments[keyword]
-                csv_comment = self.header_content[
-                    self.header_content["Keyword"] == keyword
-                ]["Comment"].values[0]
-                assert hdr_comment == csv_comment
+            hdr_comment = hdr.comments
+            csv_comment = self.header_content["Comment"]
+            func_name = inspect.currentframe().f_code.co_name
+            self.compare_lists(csv_comment, hdr_comment, hdr["FILENAME"], func_name)
 
     def test_keywords_types(self):
         for hdr in self.hdrs_list:
             for _, row in self.header_content.iterrows():
-                keyword_val = hdr[row["Keyword"]]
-                _type = self.var_types[row["Type"]]
-                assert isinstance(keyword_val, _type)
+                kw = row["Keyword"]
+                keyword_val = hdr[kw]
+                type = self.var_types[row["Type"]]
+                func_name = inspect.currentframe().f_code.co_name
+                self.verify_type(kw, keyword_val, type, hdr["FILENAME"], func_name)
         return
 
     def test_kws_in_interval(self):
@@ -136,6 +181,8 @@ class Test_Keywords(unittest.TestCase):
         for hdr in self.hdrs_list:
             for _, row in filtered_hdr_content.iterrows():
                 keyword = row["Keyword"]
+                value = hdr[keyword]
+                filename = hdr["FILENAME"]
                 if keyword not in self.kws_specific_values:
                     _min, _max = row["Allowed values"].split(",")
                     _min = float(_min)
@@ -143,27 +190,34 @@ class Test_Keywords(unittest.TestCase):
                         _max = np.inf
                     else:
                         _max = float(_max)
-                    assert _min <= hdr[keyword] <= _max
+                    func_name = inspect.currentframe().f_code.co_name
+                    self.kw_in_interval(_min, _max, value, keyword, filename, func_name)
         return
 
     def test_kws_specific_vals(self):
         for hdr in self.hdrs_list:
             for kw in self.kws_specific_values:
-                if kw not in self.to_fix_keywords:
-                    row = self.header_content[self.header_content["Keyword"] == kw]
-                    allowed_vals = row["Allowed values"].values[0].split(",")
-                    _type = row["Type"].values[0]
-                    if _type in ["integer", "float"]:
-                        allowed_vals = [
-                            self.var_types[_type](new_val) for new_val in allowed_vals
-                        ]
-                    assert hdr[kw] in allowed_vals
+                row = self.header_content[self.header_content["Keyword"] == kw]
+                allowed_vals = row["Allowed values"].values[0].split(",")
+                _type = row["Type"].values[0]
+                if _type in ["integer", "float"]:
+                    allowed_vals = [
+                        self.var_types[_type](new_val) for new_val in allowed_vals
+                    ]
+                file_name = hdr["FILENAME"]
+                func_name = inspect.currentframe().f_code.co_name
+                value = hdr[kw]
+                self.val_in_list(value, allowed_vals, kw, file_name, func_name)
+                assert hdr[kw] in allowed_vals
 
     def test_kws_regex(self):
         for hdr in self.hdrs_list:
             for kw in self.regex_expressions:
-                if kw not in self.to_fix_keywords:
-                    assert re.match(self.regex_expressions[kw], hdr[kw])
+                expression = self.regex_expressions[kw]
+                value = hdr[kw]
+                filename = hdr["FILENAME"]
+                func_name = inspect.currentframe().f_code.co_name
+                self.verifiy_regex(value, expression, kw, filename, func_name)
         return
 
     def test_WPPOS(self):
@@ -178,15 +232,30 @@ class Test_Keywords(unittest.TestCase):
     def test_comment_kw(self):
         for hdr in self.hdrs_list:
             if "COMMENT" in hdr.keys():
-                assert hdr["COMMENT"] != ""
+                filename = hdr["FILENAME"]
+                expected = [""]
+                received = hdr["COMMENT"]
+                func_name = inspect.currentframe().f_code.co_name
+                self.compare_lists(expected, received, filename, func_name)
 
     # -------------------- tests to verify the keywords content ----------------------------
 
     def test_observatory_coords(self):
         for hdr in self.hdrs_list:
-            assert hdr["OBSLONG"] == -45.5825
-            assert hdr["OBSLAT"] == -22.534
-            assert hdr["OBSALT"] == 1864.0
+            filename = hdr["FILENAME"]
+            func_name = inspect.currentframe().f_code.co_name
+
+            received = hdr["OBSLONG"]
+            expected = -45.5825
+            self.compare_numbers(expected, received, filename, func_name)
+
+            received = hdr["OBSLAT"]
+            expected = -22.534
+            self.compare_numbers(expected, received, filename, func_name)
+
+            received = hdr["OBSALT"]
+            expected = 1864.0
+            self.compare_numbers(expected, received, filename, func_name)
 
     def test_ccd_gain(self):
         for hdr in self.hdrs_list:
@@ -203,7 +272,13 @@ class Test_Keywords(unittest.TestCase):
                 & (self.ccd_gains["Preamp"] == preamp)
             )
             line = self.ccd_gains[filter]
-            assert line[serial_number].values[0] == gain
+            filename, expected, received = (
+                hdr["FILENAME"],
+                line[serial_number].values[0],
+                gain,
+            )
+            func_name = inspect.currentframe().f_code.co_name
+            self.compare_numbers(expected, received, filename, func_name)
 
     def test_read_noise(self):
         for hdr in self.hdrs_list:
@@ -220,26 +295,42 @@ class Test_Keywords(unittest.TestCase):
                 & (self.read_noises["Preamp"] == preamp)
             )
             line = self.read_noises[filter]
-            assert line[serial_number].values[0] == read_noise
+            filename, expected, received = (
+                hdr["FILENAME"],
+                line[serial_number].values[0],
+                read_noise,
+            )
+            func_name = inspect.currentframe().f_code.co_name
+            self.compare_numbers(expected, received, filename, func_name)
 
     def test_equinox(self):
         for hdr in self.hdrs_list:
-            assert hdr["EQUINOX"] == 2000.0
+            filename, expected, received = (hdr["FILENAME"], 2000.0, hdr["EQUINOX"])
+            func_name = inspect.currentframe().f_code.co_name
+            self.compare_numbers(expected, received, filename, func_name)
 
     def test_BSCALE(self):
         for hdr in self.hdrs_list:
-            assert hdr["BSCALE"] == 1
+            filename, expected, received = (hdr["FILENAME"], 1, hdr["BSCALE"])
+            func_name = inspect.currentframe().f_code.co_name
+            self.compare_numbers(expected, received, filename, func_name)
 
     def test_BZERO(self):
         for hdr in self.hdrs_list:
-            assert hdr["BZERO"] == 32768
+            received = hdr["BZERO"]
+            expected = 2**15
+            filename = hdr["FILENAME"]
+            func_name = inspect.currentframe().f_code.co_name
+            self.compare_numbers(expected, received, filename, func_name)
 
     def test_BITPIX(self):
         for hdr in self.hdrs_list:
-            assert hdr["BITPIX"] == 16
+            filename, expected, received = (hdr["FILENAME"], 16, hdr["BITPIX"])
+            func_name = inspect.currentframe().f_code.co_name
+            self.compare_numbers(expected, received, filename, func_name)
 
     def test_NAXIS(self):
         for hdr in self.hdrs_list:
-            assert hdr["NAXIS"] == 2
-
-    # ------------------------------- test the overhead between images --------------------
+            filename, expected, received = (hdr["FILENAME"], 2, hdr["NAXIS"])
+            func_name = inspect.currentframe().f_code.co_name
+            self.compare_numbers(expected, received, filename, func_name)

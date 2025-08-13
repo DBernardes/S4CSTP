@@ -1276,6 +1276,20 @@ docs = ["pip-tools (>=6.13.0)"]
 test = ["assertpy (>=1.1)", "beautifulsoup4 (>=4.11.1)", "black (>=22.1.0)", "flake8 (>=4.0.1)", "pre-commit (>=2.17.0)", "pytest-mock (>=3.7.0)", "pytest-rerunfailures (>=11.1.2)", "pytest-xdist (>=2.4.0)", "selenium (>=4.3.0)", "tox (>=3.24.5)"]
 
 [[package]]
+name = "pytest-logging"
+version = "2015.11.4"
+description = "Configures logging and allows tweaking the log level with a py.test flag"
+optional = false
+python-versions = "*"
+groups = ["test"]
+files = [
+    {file = "pytest-logging-2015.11.4.tar.gz", hash = "sha256:cec5c85ecf18aab7b2ead5498a31b9f758680ef5a902b9054ab3f2bdbb77c896"},
+]
+
+[package.dependencies]
+pytest = ">=2.8.1"
+
+[[package]]
 name = "pytest-metadata"
 version = "3.1.1"
 description = "pytest plugin for test session metadata"
@@ -1806,4 +1820,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "ccfc5842bb08550da15f56cef3132febe4f210504dc230ef8d93cd38d13c60c4"
+content-hash = "6b3bf46ddca3a00e236ca84a6334535ba7c2881a15004180827a076f18ad7a66"

@@ -74,7 +74,7 @@ You are receiving the errors and warnings found for the SPARC4 channel {channel}
 EMAIL_STRING = BASE_STRING
 i = 0
 for line in lines:
-    if "ERROR" in line or "WARNING" in line:
+    if "ERROR" in line:
         EMAIL_STRING += line + "\n"
         i += 1
 logging.info(f"There is (are) {i} line(s) to log.")
