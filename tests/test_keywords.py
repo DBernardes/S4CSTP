@@ -117,6 +117,14 @@ class Test_Keywords(unittest.TestCase):
             )
 
     @staticmethod
+    def verify_if_different(expected, received, filename, func_name):
+        expected, received = set(expected), set(received)
+        if expected == received:
+            logging.error(
+                f"Test: {func_name}, filename: {filename}, expected: {expected}, received: {received}"
+            )
+
+    @staticmethod
     def verify_type(kw, value, _type, filename, func_name):
         if not isinstance(value, _type):
             logging.error(
@@ -233,10 +241,10 @@ class Test_Keywords(unittest.TestCase):
         for hdr in self.hdrs_list:
             if "COMMENT" in hdr.keys():
                 filename = hdr["FILENAME"]
-                expected = [""]
+                expected = ""
                 received = hdr["COMMENT"]
                 func_name = inspect.currentframe().f_code.co_name
-                self.compare_lists(expected, received, filename, func_name)
+                self.verify_if_different(expected, received, filename, func_name)
 
     # -------------------- tests to verify the keywords content ----------------------------
 
