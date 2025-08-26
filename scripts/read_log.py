@@ -27,6 +27,8 @@ from getpass import getuser
 from os.path import join
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 cwd = os.path.dirname(os.path.abspath(__file__))
 base_folder = join(cwd, *3 * [".."], "SPARC4", "ACS")
 logging.basicConfig(
@@ -80,9 +82,11 @@ for line in lines:
 logging.info(f"There is (are) {i} line(s) to log.")
 
 # ------------ Send email --------------------
-USER = "dbernardes@lna.br"
-RECEIVERS = ["dbernardes@lna.br"]
-PASSWORD = "saruwsfrascsruyl"
+load_dotenv()
+USER = os.getenv("GMAIL_USER")
+PASSWORD = os.getenv("GMAIL_KEY")
+RECEIVERS = [USER]
+
 
 msg = MIMEMultipart()
 msg["From"] = USER
@@ -105,4 +109,5 @@ if EMAIL_STRING != BASE_STRING:
     except Exception as e:
         logging.info(f"Error when sending the email: {repr(e)}")
 else:
+    logging.info(f"There are no events to report.")
     logging.info(f"There are no events to report.")
