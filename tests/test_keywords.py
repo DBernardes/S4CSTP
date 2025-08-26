@@ -58,6 +58,7 @@ class Test_Keywords(unittest.TestCase):
         "GUIVRSN": r"v\d+\.\d+\.\d+",
         "ICSVRSN": r"v\d+\.\d+\.\d+",
     }
+    kws_fixed_str_size = [("PROJID", 15), ("OBJECT", 30), ("OBSERVER", 54)]
 
     @classmethod
     def setUpClass(cls):
@@ -146,10 +147,17 @@ class Test_Keywords(unittest.TestCase):
             )
 
     @staticmethod
-    def verifiy_regex(value, expression, kw, filename, func_name):
+    def verify_regex(value, expression, kw, filename, func_name):
         if not re.match(expression, value):
             logging.error(
                 f"Test: {func_name}, filename: {filename}, an unexpected value was found for the keyword {kw}: {value}"
+            )
+
+    @staticmethod
+    def verify_str_size(value, str_size, kw, filename, func_name):
+        if (n := len(value)) > str_size:
+            logging.error(
+                f"Test: {func_name}, filename: {filename}, the expected size for the keyword {kw} is {str_size}. However, {n} characters were found."
             )
 
     # -------------------------------------------------------------------------------------
@@ -225,7 +233,7 @@ class Test_Keywords(unittest.TestCase):
                 value = hdr[kw]
                 filename = hdr["FILENAME"]
                 func_name = inspect.currentframe().f_code.co_name
-                self.verifiy_regex(value, expression, kw, filename, func_name)
+                self.verify_regex(value, expression, kw, filename, func_name)
         return
 
     def test_WPPOS(self):
@@ -342,3 +350,10 @@ class Test_Keywords(unittest.TestCase):
             filename, expected, received = (hdr["FILENAME"], 2, hdr["NAXIS"])
             func_name = inspect.currentframe().f_code.co_name
             self.compare_numbers(expected, received, filename, func_name)
+
+    def test_kw_sizes(self):
+        for hdr in self.hdrs_list:
+            for kw, str_size in self.kws_fixed_str_size:
+                kw_value, filename = hdr[kw], hdr["FILENAME"]
+                func_name = inspect.currentframe().f_code.co_name
+                self.verify_str_size(kw_value, str_size, kw, filename, func_name)
