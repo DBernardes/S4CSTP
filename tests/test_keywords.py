@@ -59,6 +59,16 @@ class Test_Keywords(unittest.TestCase):
         "ICSVRSN": r"v\d+\.\d+\.\d+",
     }
     kws_fixed_str_size = [("PROJID", 15), ("OBJECT", 30), ("OBSERVER", 54)]
+    simulated_mode_kws = [
+        "ACSMODE",
+        "WPROMODE",
+        "WPSEMODE",
+        "ANMODE",
+        "CALWMODE",
+        "GMIRMODE",
+        "GFOCMODE",
+        "TCSMODE",
+    ]
 
     @classmethod
     def setUpClass(cls):
@@ -357,3 +367,12 @@ class Test_Keywords(unittest.TestCase):
                 kw_value, filename = hdr[kw], hdr["FILENAME"]
                 func_name = inspect.currentframe().f_code.co_name
                 self.verify_str_size(kw_value, str_size, kw, filename, func_name)
+
+    def test_simulated_mode(self):
+        func_name = inspect.currentframe().f_code.co_name
+        for hdr in self.hdrs_list:
+            for kw in self.simulated_mode_kws:
+                if not hdr[kw]:
+                    logging.error(
+                        f"Test: {func_name}, filename: {hdr['FILENAME']}, the keyword {kw} was set in the simulated mode."
+                    )
