@@ -372,7 +372,15 @@ class Test_Keywords(unittest.TestCase):
         func_name = inspect.currentframe().f_code.co_name
         for hdr in self.hdrs_list:
             for kw in self.simulated_mode_kws:
-                if not hdr[kw]:
+                if hdr[kw] == False:
                     logging.error(
                         f"Test: {func_name}, filename: {hdr['FILENAME']}, the keyword {kw} was set in the simulated mode."
                     )
+
+    def verify_empty_observer_kw(self):
+        func_name = inspect.currentframe().f_code.co_name
+        for hdr in self.hdrs_list:
+            if hdr["OBSERVER"] == "":
+                logging.error(
+                    f"Test: {func_name}, filename: {hdr['FILENAME']}, the keyword OBSERVER is empty."
+                )
