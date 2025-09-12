@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Nome do repositório
-REPO="DBernardes/S4ACS"
+REPO="dev-LNA/S4ACS"
 
 # API do GitHub para a última release
 API_URL="https://api.github.com/repos/$REPO/releases/latest"
